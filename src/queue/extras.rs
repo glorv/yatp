@@ -32,6 +32,7 @@ pub struct Extras {
     /// Extra metadata of this task. User can use this field to store arbitrary data. It is useful
     /// in some case to implement more complext `TaskPriorityProvider` in the priority task queue.
     pub(crate) metadata: Vec<u8>,
+    pub priority: u64,
 }
 
 impl Extras {
@@ -48,6 +49,7 @@ impl Extras {
             fixed_level: None,
             exec_times: 0,
             metadata: Vec::new(),
+            priority: 0,
         }
     }
 
@@ -71,6 +73,7 @@ impl Extras {
             fixed_level,
             exec_times: 0,
             metadata: Vec::new(),
+            priority: 0,
         }
     }
 

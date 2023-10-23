@@ -16,7 +16,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crossbeam_skiplist::SkipMap;
+use crossbeam_skiplist::{map::Entry, SkipMap};
 use crossbeam_utils::atomic::AtomicCell;
 
 use crate::queue::{
@@ -61,8 +61,11 @@ where
         self.queue.pop()
     }
 
-    pub(super) fn has_tasks_or_pull(&mut self) -> bool {
+    pub(super) fn has_tasks_or_pull(&mut self, extras: &Extras) -> bool {
         !self.queue.is_empty()
+            && self
+                .queue
+                .on_head(|e| e.map_or(false, |kv| kv.key().0 >> 60 <= extras.priority >> 60))
     }
 }
 
@@ -132,6 +135,14 @@ impl<T: TaskCell + Send + 'static> QueueCore<T> {
         self.pq
             .pop_front()
             .map(|e| into_pop(e.value().take().unwrap()))
+    }
+
+    #[inline]
+    fn on_head<F, O>(&self, f: F) -> O
+    where
+        F: FnOnce(Option<Entry<'_, MapKey, Slot<T>>>) -> O,
+    {
+        f(self.pq.front())
     }
 
     #[inline]

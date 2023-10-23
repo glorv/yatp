@@ -118,11 +118,11 @@ impl<T: TaskCell + Send> LocalQueue<T> {
 
     /// If there are tasks in the local queue, returns true. Otherwise, pulls
     /// tasks from the global queue and returns whether it succeeds.
-    pub fn has_tasks_or_pull(&mut self) -> bool {
+    pub fn has_tasks_or_pull(&mut self, extras: &Extras) -> bool {
         match &mut self.0 {
             LocalQueueInner::SingleLevel(q) => q.has_tasks_or_pull(),
             LocalQueueInner::Multilevel(q) => q.has_tasks_or_pull(),
-            LocalQueueInner::Priority(q) => q.has_tasks_or_pull(),
+            LocalQueueInner::Priority(q) => q.has_tasks_or_pull(extras),
         }
     }
 }
