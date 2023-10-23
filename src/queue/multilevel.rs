@@ -262,6 +262,17 @@ impl<R> TrackedRunner<R> {
     }
 }
 
+thread_local!(static TASK_PRIORITY: Cell<u64> = Cell::new(0));
+
+fn set_task_priority(p: u64) {
+    TASK_PRIORITY.with(|t| t.set(p));
+}
+
+/// return the task priority
+pub fn get_task_priority() -> u64 {
+    TASK_PRIORITY.with(|t| t.get())
+}
+
 impl<R, T> Runner for TrackedRunner<R>
 where
     R: Runner<TaskCell = T>,
@@ -275,6 +286,7 @@ where
 
     fn handle(&mut self, local: &mut Local<T>, mut task_cell: T) -> bool {
         let extras = task_cell.mut_extras();
+        set_task_priority(extras.priority);
         let total_running_time = extras.total_running_time.clone();
         let task_running_time = extras.running_time.clone().unwrap();
         let start_time = extras.start_time;
