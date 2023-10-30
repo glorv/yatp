@@ -46,6 +46,7 @@ where
     /// assigned to be now.
     pub fn push(&self, mut task_cell: T) {
         let priority = self.task_manager.prepare_before_push(&mut task_cell);
+        task_cell.mut_extras().priority = priority;
         self.queue.push(task_cell, priority);
     }
 }
